@@ -49,7 +49,6 @@ export function showOrUpdatePanel(
 }
 
 function disposePanel(): void {
-	_panel?.dispose();
 	_panel = undefined;
 	for (const d of _disposables) {
 		d.dispose();
