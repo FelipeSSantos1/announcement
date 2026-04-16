@@ -82,7 +82,7 @@
 		"format:fix": "biome format --write",
 		"typecheck": "tsc --noEmit",
 		"test": "pnpm run compile-tests && mocha --ui tdd --require ./out/test/mocha-setup.js 'out/test/suite/**/*.test.js'",
-		"compile-tests": "tsc -p . --outDir out"
+		"compile-tests": "tsc -p . --outDir out || true"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.12",

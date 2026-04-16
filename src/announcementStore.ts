@@ -2,33 +2,35 @@ import type * as vscode from "vscode";
 
 const READ_IDS_KEY = "announcements.readIds";
 
-export class AnnouncementStore {
-	constructor(private readonly memento: vscode.Memento) {}
+let _memento: vscode.Memento;
 
-	private readIds(): Set<number> {
-		return new Set<number>(this.memento.get<number[]>(READ_IDS_KEY, []));
-	}
+export function initStore(memento: vscode.Memento): void {
+	_memento = memento;
+}
 
-	isRead(id: number): boolean {
-		return this.readIds().has(id);
-	}
+function readIds(): Set<number> {
+	return new Set<number>(_memento.get<number[]>(READ_IDS_KEY, []));
+}
 
-	async markRead(id: number): Promise<void> {
-		const ids = this.readIds();
-		ids.add(id);
-		await this.memento.update(READ_IDS_KEY, Array.from(ids));
-	}
+export function isRead(id: number): boolean {
+	return readIds().has(id);
+}
 
-	async markAllRead(ids: number[]): Promise<void> {
-		const current = this.readIds();
-		for (const i of ids) {
-			current.add(i);
-		}
-		await this.memento.update(READ_IDS_KEY, Array.from(current));
-	}
+export async function markRead(id: number): Promise<void> {
+	const ids = readIds();
+	ids.add(id);
+	await _memento.update(READ_IDS_KEY, Array.from(ids));
+}
 
-	unreadOf(ids: number[]): number[] {
-		const read = this.readIds();
-		return ids.filter((i) => !read.has(i));
+export async function markAllRead(ids: number[]): Promise<void> {
+	const current = readIds();
+	for (const i of ids) {
+		current.add(i);
 	}
+	await _memento.update(READ_IDS_KEY, Array.from(current));
+}
+
+export function unreadOf(ids: number[]): number[] {
+	const read = readIds();
+	return ids.filter((i) => !read.has(i));
 }
