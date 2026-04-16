@@ -1,0 +1,61 @@
+{
+  "name": "team-announcements",
+  "displayName": "Team Announcements",
+  "description": "Internal team announcements pulled from GitHub Issues, filtered to the current repo.",
+  "version": "0.1.0",
+  "publisher": "hinge-health",
+  "engines": { "vscode": "^1.85.0" },
+  "categories": ["Other"],
+  "main": "./dist/extension.js",
+  "activationEvents": ["onStartupFinished"],
+  "contributes": {
+    "commands": [
+      { "command": "announcements.refresh", "title": "Announcements: Refresh" },
+      { "command": "announcements.viewAll", "title": "Announcements: View All" },
+      { "command": "announcements.markAllRead", "title": "Announcements: Mark All Read" }
+    ],
+    "configuration": {
+      "title": "Team Announcements",
+      "properties": {
+        "announcements.repository": {
+          "type": "string",
+          "default": "",
+          "description": "GitHub repo to pull announcements from, e.g. 'our-org/announcements'."
+        },
+        "announcements.label": {
+          "type": "string",
+          "default": "announcement",
+          "description": "Issue label to filter by."
+        },
+        "announcements.refreshInterval": {
+          "type": "number",
+          "default": 30,
+          "minimum": 1,
+          "description": "Check interval in minutes."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build",
+    "build": "node esbuild.js --production",
+    "watch": "node esbuild.js --watch",
+    "lint": "eslint src --ext ts",
+    "test": "npm run build && node ./out/test/runTest.js",
+    "compile-tests": "tsc -p . --outDir out"
+  },
+  "devDependencies": {
+    "@types/mocha": "^10.0.6",
+    "@types/node": "^20.10.0",
+    "@types/sinon": "^17.0.2",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "@vscode/test-electron": "^2.3.8",
+    "esbuild": "^0.19.10",
+    "eslint": "^8.56.0",
+    "mocha": "^10.2.0",
+    "sinon": "^17.0.1",
+    "typescript": "^5.3.3"
+  }
+}
