@@ -1,27 +1,30 @@
-import * as vscode from 'vscode';
-import { AnnouncementStore } from './announcementStore';
-import { AnnouncementsPanel } from './webviewPanel';
-import { Announcement } from './types';
+import * as vscode from "vscode";
+import type { AnnouncementStore } from "./announcementStore";
+import type { Announcement } from "./types";
+import { AnnouncementsPanel } from "./webviewPanel";
 
 export interface CommandContext {
-  store: AnnouncementStore;
-  refresh: () => Promise<void>;
-  getLatest: () => Announcement[];
+	store: AnnouncementStore;
+	refresh: () => Promise<void>;
+	getLatest: () => Announcement[];
 }
 
-export function registerCommands(context: vscode.ExtensionContext, cmd: CommandContext): void {
-  context.subscriptions.push(
-    vscode.commands.registerCommand('announcements.refresh', async () => {
-      await cmd.refresh();
-      vscode.window.setStatusBarMessage('Announcements refreshed', 2000);
-    }),
-    vscode.commands.registerCommand('announcements.viewAll', () => {
-      AnnouncementsPanel.showOrUpdate(cmd.store, cmd.getLatest());
-    }),
-    vscode.commands.registerCommand('announcements.markAllRead', async () => {
-      await cmd.store.markAllRead(cmd.getLatest().map((a) => a.number));
-      vscode.window.setStatusBarMessage('All announcements marked read', 2000);
-      AnnouncementsPanel.showOrUpdate(cmd.store, cmd.getLatest());
-    }),
-  );
+export function registerCommands(
+	context: vscode.ExtensionContext,
+	cmd: CommandContext,
+): void {
+	context.subscriptions.push(
+		vscode.commands.registerCommand("announcements.refresh", async () => {
+			await cmd.refresh();
+			vscode.window.setStatusBarMessage("Announcements refreshed", 2000);
+		}),
+		vscode.commands.registerCommand("announcements.viewAll", () => {
+			AnnouncementsPanel.showOrUpdate(cmd.store, cmd.getLatest());
+		}),
+		vscode.commands.registerCommand("announcements.markAllRead", async () => {
+			await cmd.store.markAllRead(cmd.getLatest().map((a) => a.number));
+			vscode.window.setStatusBarMessage("All announcements marked read", 2000);
+			AnnouncementsPanel.showOrUpdate(cmd.store, cmd.getLatest());
+		}),
+	);
 }

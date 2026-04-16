@@ -1,79 +1,82 @@
 {
-  "name": "team-announcements",
-  "displayName": "Team Announcements",
-  "description": "Internal team announcements pulled from GitHub Issues, filtered to the current repo.",
-  "version": "0.1.0",
-  "publisher": "hinge-health",
-  "engines": {
-    "vscode": "^1.85.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "main": "./dist/extension.js",
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "contributes": {
-    "commands": [
-      {
-        "command": "announcements.refresh",
-        "title": "Announcements: Refresh"
-      },
-      {
-        "command": "announcements.viewAll",
-        "title": "Announcements: View All"
-      },
-      {
-        "command": "announcements.markAllRead",
-        "title": "Announcements: Mark All Read"
-      }
-    ],
-    "configuration": {
-      "title": "Team Announcements",
-      "properties": {
-        "announcements.repository": {
-          "type": "string",
-          "default": "",
-          "description": "GitHub repo to pull announcements from, e.g. 'our-org/announcements'."
-        },
-        "announcements.label": {
-          "type": "string",
-          "default": "announcement",
-          "description": "Issue label to filter by."
-        },
-        "announcements.refreshInterval": {
-          "type": "number",
-          "default": 30,
-          "minimum": 1,
-          "description": "Check interval in minutes."
-        }
-      }
-    }
-  },
-  "scripts": {
-    "vscode:prepublish": "pnpm run build",
-    "build": "node esbuild.js --production",
-    "package": "vsce package --no-dependencies",
-    "watch": "node esbuild.js --watch",
-    "lint": "eslint src --ext ts",
-    "test": "pnpm run compile-tests && mocha --ui tdd --require ./out/test/mocha-setup.js 'out/test/suite/**/*.test.js'",
-    "compile-tests": "tsc -p . --outDir out"
-  },
-  "devDependencies": {
-    "@types/glob": "^9.0.0",
-    "@types/mocha": "^10.0.6",
-    "@types/node": "^20.10.0",
-    "@types/sinon": "^17.0.2",
-    "@types/vscode": "^1.85.0",
-    "@typescript-eslint/eslint-plugin": "^6.15.0",
-    "@typescript-eslint/parser": "^6.15.0",
-    "@vscode/vsce": "^3.9.0",
-    "esbuild": "^0.19.10",
-    "eslint": "^8.56.0",
-    "glob": "^10.5.0",
-    "mocha": "^10.2.0",
-    "sinon": "^17.0.1",
-    "typescript": "^5.3.3"
-  }
+	"name": "team-announcements",
+	"displayName": "Team Announcements",
+	"description": "Internal team announcements pulled from GitHub Issues, filtered to the current repo.",
+	"version": "0.1.0",
+	"publisher": "hinge-health",
+	"engines": {
+		"vscode": "^1.85.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"main": "./dist/extension.js",
+	"activationEvents": [
+		"onStartupFinished"
+	],
+	"contributes": {
+		"commands": [
+			{
+				"command": "announcements.refresh",
+				"title": "Announcements: Refresh"
+			},
+			{
+				"command": "announcements.viewAll",
+				"title": "Announcements: View All"
+			},
+			{
+				"command": "announcements.markAllRead",
+				"title": "Announcements: Mark All Read"
+			}
+		],
+		"configuration": {
+			"title": "Team Announcements",
+			"properties": {
+				"announcements.repository": {
+					"type": "string",
+					"default": "",
+					"description": "GitHub repo to pull announcements from, e.g. 'our-org/announcements'."
+				},
+				"announcements.label": {
+					"type": "string",
+					"default": "announcement",
+					"description": "Issue label to filter by."
+				},
+				"announcements.refreshInterval": {
+					"type": "number",
+					"default": 30,
+					"minimum": 1,
+					"description": "Check interval in minutes."
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "pnpm run build",
+		"build": "node esbuild.js --production",
+		"package": "vsce package --no-dependencies",
+		"watch": "node esbuild.js --watch",
+		"lint": "biome lint",
+		"lint:fix": "biome lint --write",
+		"check": "biome check",
+		"check:fix": "biome check --write",
+		"format": "biome format",
+		"format:fix": "biome format --write",
+		"test": "pnpm run compile-tests && mocha --ui tdd --require ./out/test/mocha-setup.js 'out/test/suite/**/*.test.js'",
+		"compile-tests": "tsc -p . --outDir out"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.4.12",
+		"@types/glob": "^9.0.0",
+		"@types/mocha": "^10.0.6",
+		"@types/node": "^20.10.0",
+		"@types/sinon": "^17.0.2",
+		"@types/vscode": "^1.85.0",
+		"@vscode/vsce": "^3.9.0",
+		"esbuild": "^0.19.10",
+		"glob": "^10.5.0",
+		"mocha": "^10.2.0",
+		"sinon": "^17.0.1",
+		"typescript": "^5.3.3"
+	}
 }
