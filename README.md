@@ -4,6 +4,16 @@ VSCode extension that shows GitHub Issues labeled `announcement` from **the repo
 
 There is no central announcements repo. To announce in multiple repos, file the issue in each one.
 
+## Screenshots
+
+![Announcement Central](images/screenshot-1.png)
+
+![Unread announcement notification and Status bar indicator](images/screenshot-2.png)
+
+![GH issues type](images/screenshot-3.png)
+
+![Commands](images/screenshot-4.png)
+
 ## Requirements
 
 - [GitHub CLI (`gh`)](https://cli.github.com) installed and authenticated (`gh auth login`).
