@@ -37,11 +37,11 @@
     }
   },
   "scripts": {
-    "vscode:prepublish": "npm run build",
+    "vscode:prepublish": "pnpm run build",
     "build": "node esbuild.js --production",
     "watch": "node esbuild.js --watch",
     "lint": "eslint src --ext ts",
-    "test": "npm run build && node ./out/test/runTest.js",
+    "test": "pnpm run build && node ./out/test/runTest.js",
     "compile-tests": "tsc -p . --outDir out"
   },
   "devDependencies": {
