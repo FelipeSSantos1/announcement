@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-04-16
+
+### Changed
+
+- Add extension icon.
+- Trim packaging to exclude repo-only files (`.github/`, `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`).
+
 ## [0.1.0] - 2026-04-16
 
 ### Added
@@ -19,5 +26,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Commands: `Announcements: Refresh`, `Announcements: View All`, `Announcements: Mark All Read`.
 - Configurable label (`announcements.label`) and refresh interval (`announcements.refreshInterval`).
 
-[Unreleased]: https://github.com/FelipeSSantos1/announcement/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/FelipeSSantos1/announcement/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/FelipeSSantos1/announcement/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/FelipeSSantos1/announcement/releases/tag/v0.1.0
