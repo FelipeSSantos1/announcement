@@ -2,7 +2,7 @@ import type * as vscode from "vscode";
 
 const READ_IDS_KEY = "announcements.readIds";
 
-let _memento: vscode.Memento;
+let _memento!: vscode.Memento;
 
 export function initStore(memento: vscode.Memento): void {
 	_memento = memento;
