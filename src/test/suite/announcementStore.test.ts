@@ -1,10 +1,15 @@
-import * as assert from "assert";
+import * as assert from "node:assert";
+import type * as vscode from "vscode";
 import { AnnouncementStore } from "../../announcementStore";
 
-class FakeMemento {
+class FakeMemento implements vscode.Memento {
 	private data = new Map<string, unknown>();
-	get<T>(key: string, defaultValue: T): T {
-		return (this.data.has(key) ? this.data.get(key) : defaultValue) as T;
+	get<T>(key: string): T | undefined;
+	get<T>(key: string, defaultValue: T): T;
+	get<T>(key: string, defaultValue?: T): T | undefined {
+		return (this.data.has(key) ? this.data.get(key) : defaultValue) as
+			| T
+			| undefined;
 	}
 	async update(key: string, value: unknown): Promise<void> {
 		this.data.set(key, value);
@@ -19,21 +24,21 @@ class FakeMemento {
 
 suite("AnnouncementStore", () => {
 	test("isRead returns false by default", () => {
-		const store = new AnnouncementStore(new FakeMemento() as any);
+		const store = new AnnouncementStore(new FakeMemento());
 		assert.strictEqual(store.isRead(42), false);
 	});
 
 	test("markRead persists and isRead returns true", async () => {
 		const mem = new FakeMemento();
-		const store = new AnnouncementStore(mem as any);
+		const store = new AnnouncementStore(mem);
 		await store.markRead(42);
 		assert.strictEqual(store.isRead(42), true);
-		const reloaded = new AnnouncementStore(mem as any);
+		const reloaded = new AnnouncementStore(mem);
 		assert.strictEqual(reloaded.isRead(42), true);
 	});
 
 	test("markAllRead stores every passed id", async () => {
-		const store = new AnnouncementStore(new FakeMemento() as any);
+		const store = new AnnouncementStore(new FakeMemento());
 		await store.markAllRead([1, 2, 3]);
 		assert.strictEqual(store.isRead(1), true);
 		assert.strictEqual(store.isRead(2), true);
@@ -41,7 +46,7 @@ suite("AnnouncementStore", () => {
 	});
 
 	test("unreadOf filters out read ids", async () => {
-		const store = new AnnouncementStore(new FakeMemento() as any);
+		const store = new AnnouncementStore(new FakeMemento());
 		await store.markRead(2);
 		const unread = store.unreadOf([1, 2, 3]);
 		assert.deepStrictEqual(unread.sort(), [1, 3]);

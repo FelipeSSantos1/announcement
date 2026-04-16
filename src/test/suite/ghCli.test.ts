@@ -1,11 +1,9 @@
-import * as assert from "assert";
+import * as assert from "node:assert";
 import * as sinon from "sinon";
-
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const child_process =
-	require("child_process") as typeof import("child_process");
-
 import * as ghCli from "../../ghCli";
+
+const child_process =
+	require("node:child_process") as typeof import("node:child_process");
 
 suite("ghCli", () => {
 	teardown(() => sinon.restore());

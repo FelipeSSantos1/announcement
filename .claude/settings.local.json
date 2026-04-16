@@ -1,30 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git init *)",
-      "Bash(git branch *)",
-      "Bash(pnpm install *)",
-      "Bash(brew list *)",
-      "Read(//usr/local/bin/**)",
-      "Read(//Users/felipe.souzasantos/.local/share/pnpm/**)",
-      "Bash(~/.local/share/pnpm/pnpm install *)",
-      "Read(//Users/felipe.souzasantos/Library/pnpm/**)",
-      "Bash(~/Library/pnpm/pnpm install *)",
-      "Bash(git -C /Users/felipe.souzasantos/Documents/HH/vscodeannouncement log --oneline -10)",
-      "Bash(git -C /Users/felipe.souzasantos/Documents/HH/vscodeannouncement status)",
-      "Bash(git -C /Users/felipe.souzasantos/Documents/HH/vscodeannouncement add package.json pnpm-lock.yaml tsconfig.json .gitignore .vscodeignore .eslintrc.json esbuild.js README.md)",
-      "Bash(git -C /Users/felipe.souzasantos/Documents/HH/vscodeannouncement commit -m ' *)",
-      "Bash(git add *)",
-      "Bash(git commit *)",
-      "Bash(npx tsc *)",
-      "Bash(echo \"exit=$?\")",
-      "Bash(pnpm add *)",
+      "Bash(pnpm exec *)",
       "Bash(pnpm run *)",
-      "Bash(pnpm test *)",
-      "Bash(node_modules/.bin/mocha --ui tdd --require out/test/suite/gitContext.test.js)",
-      "Bash(node -e ' *)",
-      "Bash(pnpm remove *)",
-      "Bash(/bin/rm -f /Users/felipe.souzasantos/Documents/HH/vscodeannouncement/src/extension.ts)"
+      "Bash(pnpm remove *)"
     ]
   }
 }

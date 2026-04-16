@@ -1,5 +1,4 @@
 import * as vscode from "vscode";
-import { fetchAnnouncements } from "./announcementService";
 import { AnnouncementStore } from "./announcementStore";
 import { registerCommands } from "./commands";
 import * as ghCli from "./ghCli";
@@ -10,6 +9,7 @@ import type { Announcement, AnnouncementConfig } from "./types";
 import { AnnouncementsPanel } from "./webviewPanel";
 
 let latest: Announcement[] = [];
+let currentRepoKey: string | null = null;
 let refreshTimer: NodeJS.Timeout | undefined;
 
 export async function activate(
@@ -35,20 +35,24 @@ export async function activate(
 
 	const refresh = async (): Promise<void> => {
 		const cfg = readConfig();
-		if (!cfg.repository) {
-			vscode.window.showInformationMessage(
-				'Set "announcements.repository" in settings to enable announcements.',
-			);
+		const ctx = await getCurrentRepo(
+			vscode.window.activeTextEditor?.document.uri,
+		);
+		if (!ctx) {
+			latest = [];
+			currentRepoKey = null;
+			statusBar.hide();
 			return;
 		}
-		const ctx = await getCurrentRepo();
+		currentRepoKey = `${ctx.owner}/${ctx.repo}`;
 		try {
-			latest = fetchAnnouncements(cfg.repository, cfg.label, ctx);
+			latest = ghCli.fetchIssues(currentRepoKey, cfg.label);
 		} catch (err) {
 			const message = err instanceof Error ? err.message : String(err);
 			vscode.window.showErrorMessage(
-				`Failed to fetch announcements: ${message}`,
+				`Failed to fetch announcements for ${currentRepoKey}: ${message}`,
 			);
+			latest = [];
 			return;
 		}
 		const unread = latest.filter((a) => !store.isRead(a.number));
@@ -66,11 +70,18 @@ export async function activate(
 			if (e.affectsConfiguration("announcements.refreshInterval")) {
 				scheduleRefresh(refresh, readConfig().refreshInterval);
 			}
-			if (
-				e.affectsConfiguration("announcements.repository") ||
-				e.affectsConfiguration("announcements.label")
-			) {
+			if (e.affectsConfiguration("announcements.label")) {
 				refresh();
+			}
+		}),
+		vscode.window.onDidChangeActiveTextEditor(async (editor) => {
+			if (!editor) {
+				return;
+			}
+			const ctx = await getCurrentRepo(editor.document.uri);
+			const key = ctx ? `${ctx.owner}/${ctx.repo}` : null;
+			if (key !== currentRepoKey) {
+				await refresh();
 			}
 		}),
 	);
@@ -85,7 +96,6 @@ export function deactivate(): void {
 function readConfig(): AnnouncementConfig {
 	const c = vscode.workspace.getConfiguration("announcements");
 	return {
-		repository: c.get<string>("repository", ""),
 		label: c.get<string>("label", "announcement"),
 		refreshInterval: c.get<number>("refreshInterval", 30),
 	};

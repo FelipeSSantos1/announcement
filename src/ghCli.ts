@@ -1,6 +1,5 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const child_process =
-	require("child_process") as typeof import("child_process");
+	require("node:child_process") as typeof import("node:child_process");
 
 import type { Announcement } from "./types";
 

@@ -1,5 +1,5 @@
-import Module from "module";
-import * as path from "path";
+import Module from "node:module";
+import * as path from "node:path";
 
 const STUB_PATH = path.resolve(__dirname, "vscode-stub.js");
 const resolver = Module as unknown as {

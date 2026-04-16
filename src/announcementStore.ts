@@ -21,7 +21,9 @@ export class AnnouncementStore {
 
 	async markAllRead(ids: number[]): Promise<void> {
 		const current = this.readIds();
-		ids.forEach((i) => current.add(i));
+		for (const i of ids) {
+			current.add(i);
+		}
 		await this.memento.update(READ_IDS_KEY, Array.from(current));
 	}
 

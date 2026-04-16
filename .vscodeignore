@@ -9,6 +9,7 @@ node_modules/**
 esbuild.js
 tsconfig.json
 .eslintrc.json
+biome.json
 pnpm-lock.yaml
 pnpm-workspace.yaml
 **/*.map

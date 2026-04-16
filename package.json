@@ -1,9 +1,28 @@
 {
 	"name": "team-announcements",
 	"displayName": "Team Announcements",
-	"description": "Internal team announcements pulled from GitHub Issues, filtered to the current repo.",
+	"description": "Team announcements pulled from GitHub Issues, filtered to the current repo.",
 	"version": "0.1.0",
-	"publisher": "hinge-health",
+	"publisher": "felipessantos",
+	"license": "MIT",
+	"author": {
+		"name": "Felipe S. Santos"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/FelipeSSantos1/announcement.git"
+	},
+	"bugs": {
+		"url": "https://github.com/FelipeSSantos1/announcement/issues"
+	},
+	"homepage": "https://github.com/FelipeSSantos1/announcement#readme",
+	"keywords": [
+		"announcements",
+		"github",
+		"team",
+		"notifications",
+		"issues"
+	],
 	"engines": {
 		"vscode": "^1.85.0"
 	},
@@ -32,11 +51,6 @@
 		"configuration": {
 			"title": "Team Announcements",
 			"properties": {
-				"announcements.repository": {
-					"type": "string",
-					"default": "",
-					"description": "GitHub repo to pull announcements from, e.g. 'our-org/announcements'."
-				},
 				"announcements.label": {
 					"type": "string",
 					"default": "announcement",
@@ -56,12 +70,13 @@
 		"build": "node esbuild.js --production",
 		"package": "vsce package --no-dependencies",
 		"watch": "node esbuild.js --watch",
-		"lint": "biome lint",
-		"lint:fix": "biome lint --write",
+		"lint": "biome lint && tsc --noEmit",
+		"lint:fix": "biome lint --write && tsc --noEmit",
 		"check": "biome check",
 		"check:fix": "biome check --write",
 		"format": "biome format",
 		"format:fix": "biome format --write",
+		"typecheck": "tsc --noEmit",
 		"test": "pnpm run compile-tests && mocha --ui tdd --require ./out/test/mocha-setup.js 'out/test/suite/**/*.test.js'",
 		"compile-tests": "tsc -p . --outDir out"
 	},

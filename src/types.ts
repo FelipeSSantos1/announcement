@@ -19,10 +19,6 @@ export interface RepoContext {
 }
 
 export interface AnnouncementConfig {
-	repository: string;
 	label: string;
 	refreshInterval: number;
 }
-
-export const ALL_REPOS_LABEL = "all-repos";
-export const REPO_LABEL_PREFIX = "repo:";
