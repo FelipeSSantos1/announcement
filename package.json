@@ -2,7 +2,7 @@
 	"name": "team-announcements",
 	"displayName": "Team Announcements",
 	"description": "Team announcements pulled from GitHub Issues, filtered to the current repo.",
-	"version": "0.1.1",
+	"version": "0.1.2",
 	"publisher": "felipessantos",
 	"license": "MIT",
 	"author": {
