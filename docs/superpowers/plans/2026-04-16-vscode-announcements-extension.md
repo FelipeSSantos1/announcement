@@ -10,7 +10,7 @@
 - TypeScript (strict mode)
 - VSCode Extension API (engine `^1.85.0`)
 - `gh` CLI (spawned via `child_process`)
-- Mocha + `@vscode/test-electron` for integration tests; pure-logic unit tests with Mocha + Sinon
+- Mocha + Sinon for pure-logic unit tests (run via plain Node with a small `vscode` module stub — no Electron harness). Integration tests are out of scope for this plan.
 - esbuild for bundling
 
 ---
@@ -342,49 +342,35 @@ git commit -m "feat: define shared announcement types"
 
 **Files:**
 - Create: `src/gitContext.ts`
+- Create: `src/test/mocha-setup.ts` (one-time harness — stubs `require('vscode')` for unit tests)
+- Create: `src/test/vscode-stub.ts` (tiny mock of VSCode API surface our modules touch)
 - Test: `src/test/suite/gitContext.test.ts`
 
-- [ ] **Step 1: Add test setup scaffolding**
+**Note on test harness:** All current tests are pure logic — we run them with plain Mocha (no Electron). `mocha-setup.ts` intercepts `require('vscode')` and redirects to `vscode-stub.ts`, so any module that imports `vscode` can be loaded in Node without the full Extension Host.
 
-Create `src/test/runTest.ts`:
+- [ ] **Step 1: Add test harness scaffolding**
+
+Create `src/test/mocha-setup.ts`:
 ```ts
+import Module from 'module';
 import * as path from 'path';
-import { runTests } from '@vscode/test-electron';
 
-async function main() {
-  try {
-    const extensionDevelopmentPath = path.resolve(__dirname, '../../');
-    const extensionTestsPath = path.resolve(__dirname, './suite/index');
-    await runTests({ extensionDevelopmentPath, extensionTestsPath });
-  } catch (err) {
-    console.error('Failed to run tests', err);
-    process.exit(1);
-  }
-}
-
-main();
+const STUB_PATH = path.resolve(__dirname, 'vscode-stub.js');
+const resolver = Module as unknown as {
+  _resolveFilename: (request: string, parent: unknown, ...rest: unknown[]) => string;
+};
+const original = resolver._resolveFilename;
+resolver._resolveFilename = function (request: string, parent: unknown, ...rest: unknown[]): string {
+  if (request === 'vscode') { return STUB_PATH; }
+  return original.call(this, request, parent, ...rest);
+};
 ```
 
-Create `src/test/suite/index.ts`:
-```ts
-import * as path from 'path';
-import Mocha from 'mocha';
-import { glob } from 'glob';
+Create `src/test/vscode-stub.ts` with minimal exports matching the VSCode API surface the extension uses (extensions, window, workspace, commands, env, Uri, StatusBarAlignment, ViewColumn, ThemeColor).
 
-export async function run(): Promise<void> {
-  const mocha = new Mocha({ ui: 'tdd', color: true });
-  const testsRoot = path.resolve(__dirname, '.');
-  const files = await glob('**/*.test.js', { cwd: testsRoot });
-  files.forEach((f) => mocha.addFile(path.resolve(testsRoot, f)));
-  return new Promise((resolve, reject) => {
-    mocha.run((failures) => (failures > 0 ? reject(new Error(`${failures} test(s) failed`)) : resolve()));
-  });
-}
+Update `package.json` `test` script to:
 ```
-
-Add glob dep:
-```bash
-pnpm add --save-dev glob@^10.3.10 @types/glob
+"test": "pnpm run compile-tests && mocha --ui tdd --require ./out/test/mocha-setup.js 'out/test/suite/**/*.test.js'"
 ```
 
 - [ ] **Step 2: Write failing test for `parseRemoteUrl`**

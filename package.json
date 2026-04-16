@@ -56,7 +56,7 @@
     "build": "node esbuild.js --production",
     "watch": "node esbuild.js --watch",
     "lint": "eslint src --ext ts",
-    "test": "pnpm run build && node ./out/test/runTest.js",
+    "test": "pnpm run compile-tests && mocha --ui tdd --require ./out/test/mocha-setup.js 'out/test/suite/**/*.test.js'",
     "compile-tests": "tsc -p . --outDir out"
   },
   "devDependencies": {
@@ -67,7 +67,6 @@
     "@types/vscode": "^1.85.0",
     "@typescript-eslint/eslint-plugin": "^6.15.0",
     "@typescript-eslint/parser": "^6.15.0",
-    "@vscode/test-electron": "^2.3.8",
     "esbuild": "^0.19.10",
     "eslint": "^8.56.0",
     "glob": "^10.5.0",

@@ -15,7 +15,16 @@
       "Bash(git -C /Users/felipe.souzasantos/Documents/HH/vscodeannouncement add package.json pnpm-lock.yaml tsconfig.json .gitignore .vscodeignore .eslintrc.json esbuild.js README.md)",
       "Bash(git -C /Users/felipe.souzasantos/Documents/HH/vscodeannouncement commit -m ' *)",
       "Bash(git add *)",
-      "Bash(git commit *)"
+      "Bash(git commit *)",
+      "Bash(npx tsc *)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(pnpm add *)",
+      "Bash(pnpm run *)",
+      "Bash(pnpm test *)",
+      "Bash(node_modules/.bin/mocha --ui tdd --require out/test/suite/gitContext.test.js)",
+      "Bash(node -e ' *)",
+      "Bash(pnpm remove *)",
+      "Bash(/bin/rm -f /Users/felipe.souzasantos/Documents/HH/vscodeannouncement/src/extension.ts)"
     ]
   }
 }
