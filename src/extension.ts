@@ -1,12 +1,12 @@
 import * as vscode from "vscode";
-import { AnnouncementStore } from "./announcementStore";
+import { initStore, isRead, markRead } from "./announcementStore";
 import { registerCommands } from "./commands";
 import * as ghCli from "./ghCli";
 import { getCurrentRepo } from "./gitContext";
-import { NotificationManager } from "./notificationManager";
-import { StatusBar } from "./statusBar";
+import { notify } from "./notificationManager";
+import { disposeStatusBar, hideStatusBar, updateStatusBar } from "./statusBar";
 import type { Announcement, AnnouncementConfig } from "./types";
-import { AnnouncementsPanel } from "./webviewPanel";
+import { showOrUpdatePanel } from "./webviewPanel";
 
 let latest: Announcement[] = [];
 let currentRepoKey: string | null = null;
@@ -26,12 +26,8 @@ export async function activate(
 		return;
 	}
 
-	const store = new AnnouncementStore(context.globalState);
-	const statusBar = new StatusBar();
-	context.subscriptions.push(statusBar);
-	const notifications = new NotificationManager(store, (a) =>
-		openAnnouncement(a, store, statusBar),
-	);
+	initStore(context.globalState);
+	context.subscriptions.push({ dispose: disposeStatusBar });
 
 	const refresh = async (): Promise<void> => {
 		const cfg = readConfig();
@@ -41,7 +37,7 @@ export async function activate(
 		if (!ctx) {
 			latest = [];
 			currentRepoKey = null;
-			statusBar.hide();
+			hideStatusBar();
 			return;
 		}
 		currentRepoKey = `${ctx.owner}/${ctx.repo}`;
@@ -55,12 +51,12 @@ export async function activate(
 			latest = [];
 			return;
 		}
-		const unread = latest.filter((a) => !store.isRead(a.number));
-		statusBar.update(unread.length);
-		await notifications.notify(unread);
+		const unread = latest.filter((a) => !isRead(a.number));
+		updateStatusBar(unread.length);
+		await notify(unread, openAnnouncement);
 	};
 
-	registerCommands(context, { store, refresh, getLatest: () => latest });
+	registerCommands(context, { refresh, getLatest: () => latest });
 
 	await refresh();
 	scheduleRefresh(refresh, readConfig().refreshInterval);
@@ -113,13 +109,13 @@ function scheduleRefresh(run: () => Promise<void>, minutes: number): void {
 	}, ms);
 }
 
-function openAnnouncement(a: Announcement, store: AnnouncementStore, statusBar: StatusBar): void {
+function openAnnouncement(a: Announcement): void {
 	const onMarkRead = () => {
-		const unread = latest.filter((item) => !store.isRead(item.number));
-		statusBar.update(unread.length);
+		const unread = latest.filter((item) => !isRead(item.number));
+		updateStatusBar(unread.length);
 	};
-	AnnouncementsPanel.showOrUpdate(store, latest, onMarkRead);
-	store.markRead(a.number).catch(() => {
+	showOrUpdatePanel(latest, onMarkRead);
+	markRead(a.number).catch(() => {
 		/* ignore */
 	});
 }

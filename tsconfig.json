@@ -12,7 +12,6 @@
 		"noFallthroughCasesInSwitch": true,
 		"esModuleInterop": true,
 		"skipLibCheck": true,
-		"noEmitOnError": false,
 		"types": ["node", "mocha"]
 	},
 	"exclude": ["node_modules", "dist", "out"]
