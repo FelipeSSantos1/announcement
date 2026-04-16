@@ -1,36 +1,39 @@
 import * as vscode from "vscode";
 
-export class StatusBar {
-	private item: vscode.StatusBarItem;
+let _item: vscode.StatusBarItem | undefined;
 
-	constructor() {
-		this.item = vscode.window.createStatusBarItem(
+function getItem(): vscode.StatusBarItem {
+	if (!_item) {
+		_item = vscode.window.createStatusBarItem(
 			vscode.StatusBarAlignment.Right,
 			100,
 		);
-		this.item.command = "announcements.viewAll";
-		this.item.tooltip = "Team announcements — click to view";
-		this.item.hide();
+		_item.command = "announcements.viewAll";
+		_item.tooltip = "Team announcements — click to view";
+		_item.hide();
 	}
+	return _item;
+}
 
-	update(unreadCount: number): void {
-		if (unreadCount <= 0) {
-			this.item.text = "$(megaphone) 0";
-			this.item.backgroundColor = undefined;
-		} else {
-			this.item.text = `$(megaphone) ${unreadCount}`;
-			this.item.backgroundColor = new vscode.ThemeColor(
-				"statusBarItem.warningBackground",
-			);
-		}
-		this.item.show();
+export function updateStatusBar(unreadCount: number): void {
+	const item = getItem();
+	if (unreadCount <= 0) {
+		item.text = "$(megaphone) 0";
+		item.backgroundColor = undefined;
+	} else {
+		item.text = `$(megaphone) ${unreadCount}`;
+		item.backgroundColor = new vscode.ThemeColor(
+			"statusBarItem.warningBackground",
+		);
 	}
+	item.show();
+}
 
-	hide(): void {
-		this.item.hide();
-	}
+export function hideStatusBar(): void {
+	_item?.hide();
+}
 
-	dispose(): void {
-		this.item.dispose();
-	}
+export function disposeStatusBar(): void {
+	_item?.dispose();
+	_item = undefined;
 }
