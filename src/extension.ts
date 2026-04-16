@@ -30,7 +30,7 @@ export async function activate(
 	const statusBar = new StatusBar();
 	context.subscriptions.push(statusBar);
 	const notifications = new NotificationManager(store, (a) =>
-		openAnnouncement(a, store),
+		openAnnouncement(a, store, statusBar),
 	);
 
 	const refresh = async (): Promise<void> => {
@@ -113,8 +113,12 @@ function scheduleRefresh(run: () => Promise<void>, minutes: number): void {
 	}, ms);
 }
 
-function openAnnouncement(a: Announcement, store: AnnouncementStore): void {
-	AnnouncementsPanel.showOrUpdate(store, latest);
+function openAnnouncement(a: Announcement, store: AnnouncementStore, statusBar: StatusBar): void {
+	const onMarkRead = () => {
+		const unread = latest.filter((item) => !store.isRead(item.number));
+		statusBar.update(unread.length);
+	};
+	AnnouncementsPanel.showOrUpdate(store, latest, onMarkRead);
 	store.markRead(a.number).catch(() => {
 		/* ignore */
 	});

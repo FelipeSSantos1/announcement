@@ -6,6 +6,8 @@ export class AnnouncementsPanel {
 	private static current: AnnouncementsPanel | undefined;
 	private readonly panel: vscode.WebviewPanel;
 	private disposables: vscode.Disposable[] = [];
+	private items: Announcement[] = [];
+	private onMarkRead?: () => void;
 
 	private constructor(
 		panel: vscode.WebviewPanel,
@@ -19,6 +21,8 @@ export class AnnouncementsPanel {
 				}
 				if (msg.type === "markRead" && typeof msg.number === "number") {
 					await this.store.markRead(msg.number);
+					this.render(this.items);
+					this.onMarkRead?.();
 				}
 			},
 			null,
@@ -30,9 +34,11 @@ export class AnnouncementsPanel {
 	static showOrUpdate(
 		store: AnnouncementStore,
 		items: Announcement[],
+		onMarkRead?: () => void,
 	): AnnouncementsPanel {
 		if (AnnouncementsPanel.current) {
 			AnnouncementsPanel.current.render(items);
+			AnnouncementsPanel.current.onMarkRead = onMarkRead;
 			AnnouncementsPanel.current.panel.reveal();
 			return AnnouncementsPanel.current;
 		}
@@ -43,12 +49,14 @@ export class AnnouncementsPanel {
 			{ enableScripts: true, retainContextWhenHidden: true },
 		);
 		const instance = new AnnouncementsPanel(panel, store);
+		instance.onMarkRead = onMarkRead;
 		instance.render(items);
 		AnnouncementsPanel.current = instance;
 		return instance;
 	}
 
 	private render(items: Announcement[]): void {
+		this.items = items;
 		this.panel.webview.html = renderHtml(items, this.store);
 	}
 
