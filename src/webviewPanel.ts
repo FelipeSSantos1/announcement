@@ -1,79 +1,66 @@
 import * as vscode from "vscode";
-import type { AnnouncementStore } from "./announcementStore";
+import { isRead, markRead } from "./announcementStore";
 import type { Announcement } from "./types";
 
-export class AnnouncementsPanel {
-	private static current: AnnouncementsPanel | undefined;
-	private readonly panel: vscode.WebviewPanel;
-	private disposables: vscode.Disposable[] = [];
-	private items: Announcement[] = [];
-	private onMarkRead?: () => void;
+let _panel: vscode.WebviewPanel | undefined;
+let _disposables: vscode.Disposable[] = [];
+let _items: Announcement[] = [];
+let _onMarkRead: (() => void) | undefined;
 
-	private constructor(
-		panel: vscode.WebviewPanel,
-		private readonly store: AnnouncementStore,
-	) {
-		this.panel = panel;
-		this.panel.webview.onDidReceiveMessage(
-			async (msg) => {
-				if (msg.type === "openIssue" && typeof msg.url === "string") {
-					await vscode.env.openExternal(vscode.Uri.parse(msg.url));
+export function showOrUpdatePanel(
+	items: Announcement[],
+	onMarkRead?: () => void,
+): void {
+	if (_panel) {
+		_items = items;
+		_onMarkRead = onMarkRead;
+		_panel.webview.html = renderHtml(items);
+		_panel.reveal();
+		return;
+	}
+	const panel = vscode.window.createWebviewPanel(
+		"teamAnnouncements",
+		"Team Announcements",
+		vscode.ViewColumn.One,
+		{ enableScripts: true, retainContextWhenHidden: true },
+	);
+	_panel = panel;
+	_items = items;
+	_onMarkRead = onMarkRead;
+
+	panel.webview.onDidReceiveMessage(
+		async (msg) => {
+			if (msg.type === "openIssue" && typeof msg.url === "string") {
+				await vscode.env.openExternal(vscode.Uri.parse(msg.url));
+			}
+			if (msg.type === "markRead" && typeof msg.number === "number") {
+				await markRead(msg.number);
+				if (_panel) {
+					_panel.webview.html = renderHtml(_items);
 				}
-				if (msg.type === "markRead" && typeof msg.number === "number") {
-					await this.store.markRead(msg.number);
-					this.render(this.items);
-					this.onMarkRead?.();
-				}
-			},
-			null,
-			this.disposables,
-		);
-		this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
-	}
-
-	static showOrUpdate(
-		store: AnnouncementStore,
-		items: Announcement[],
-		onMarkRead?: () => void,
-	): AnnouncementsPanel {
-		if (AnnouncementsPanel.current) {
-			AnnouncementsPanel.current.render(items);
-			AnnouncementsPanel.current.onMarkRead = onMarkRead;
-			AnnouncementsPanel.current.panel.reveal();
-			return AnnouncementsPanel.current;
-		}
-		const panel = vscode.window.createWebviewPanel(
-			"teamAnnouncements",
-			"Team Announcements",
-			vscode.ViewColumn.One,
-			{ enableScripts: true, retainContextWhenHidden: true },
-		);
-		const instance = new AnnouncementsPanel(panel, store);
-		instance.onMarkRead = onMarkRead;
-		instance.render(items);
-		AnnouncementsPanel.current = instance;
-		return instance;
-	}
-
-	private render(items: Announcement[]): void {
-		this.items = items;
-		this.panel.webview.html = renderHtml(items, this.store);
-	}
-
-	private dispose(): void {
-		AnnouncementsPanel.current = undefined;
-		this.panel.dispose();
-		for (const d of this.disposables) {
-			d.dispose();
-		}
-		this.disposables = [];
-	}
+				_onMarkRead?.();
+			}
+		},
+		null,
+		_disposables,
+	);
+	panel.onDidDispose(() => disposePanel(), null, _disposables);
+	panel.webview.html = renderHtml(items);
 }
 
-function renderHtml(items: Announcement[], store: AnnouncementStore): string {
+function disposePanel(): void {
+	_panel?.dispose();
+	_panel = undefined;
+	for (const d of _disposables) {
+		d.dispose();
+	}
+	_disposables = [];
+}
+
+function renderHtml(items: Announcement[]): string {
 	const rows = items
 		.map((a) => {
-			const unread = store.isRead(a.number)
+			const unread = isRead(a.number)
 				? ""
 				: '<span class="badge">NEW</span>';
 			const labels = a.labels
