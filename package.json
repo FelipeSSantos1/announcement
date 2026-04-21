@@ -83,7 +83,7 @@
 		"typecheck": "tsc --noEmit",
 		"test": "pnpm run compile-tests && mocha --ui tdd --require ./out/test/mocha-setup.js 'out/test/suite/**/*.test.js'",
 		"compile-tests": "tsc -p . --outDir out",
-		"install:local": "pnpm run build && code --install-extension . --force",
+		"install:local": "pnpm run package && code --install-extension $(node -p \"const p=require('./package.json');p.name+'-'+p.version+'.vsix'\") --force",
 		"install:marketplace": "code --uninstall-extension felipessantos.team-announcements && code --install-extension felipessantos.team-announcements"
 	},
 	"devDependencies": {

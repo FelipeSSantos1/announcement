@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { initStore, isRead, markRead } from "./announcementStore";
 import { registerCommands } from "./commands";
 import * as ghCli from "./ghCli";
-import { getCurrentRepo } from "./gitContext";
+import { getCurrentRepo, onDidOpenRepository } from "./gitContext";
 import { notify } from "./notificationManager";
 import { disposeStatusBar, hideStatusBar, updateStatusBar } from "./statusBar";
 import type { Announcement, AnnouncementConfig } from "./types";
@@ -12,9 +12,15 @@ let latest: Announcement[] = [];
 let currentRepoKey: string | null = null;
 let refreshTimer: NodeJS.Timeout | undefined;
 
-export async function activate(
-	context: vscode.ExtensionContext,
-): Promise<void> {
+const STARTUP_DELAY_MS = 30_000;
+
+export function activate(context: vscode.ExtensionContext): void {
+	setTimeout(() => {
+		initialize(context).catch(() => {});
+	}, STARTUP_DELAY_MS);
+}
+
+async function initialize(context: vscode.ExtensionContext): Promise<void> {
 	if (!ghCli.isInstalled()) {
 		const choice = await vscode.window.showWarningMessage(
 			"Team Announcements requires the GitHub CLI (gh). Install it and run `gh auth login`, then reload.",
@@ -60,6 +66,13 @@ export async function activate(
 
 	await refresh();
 	scheduleRefresh(refresh, readConfig().refreshInterval);
+
+	const repoDisposable = await onDidOpenRepository(() => {
+		refresh().catch(() => {});
+	});
+	if (repoDisposable) {
+		context.subscriptions.push(repoDisposable);
+	}
 
 	context.subscriptions.push(
 		vscode.workspace.onDidChangeConfiguration((e) => {

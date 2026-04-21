@@ -14,6 +14,18 @@ export function parseRemoteUrl(url: string): RepoContext | null {
 	return { owner: match[1], repo: match[2] };
 }
 
+export async function onDidOpenRepository(
+	callback: () => void,
+): Promise<vscode.Disposable | null> {
+	const gitExt = vscode.extensions.getExtension<GitExtension>("vscode.git");
+	if (!gitExt) {
+		return null;
+	}
+	const git = gitExt.isActive ? gitExt.exports : await gitExt.activate();
+	const api = git.getAPI(1);
+	return api.onDidOpenRepository(callback);
+}
+
 export async function getCurrentRepo(
 	fileUri?: vscode.Uri,
 ): Promise<RepoContext | null> {
@@ -41,6 +53,7 @@ interface GitExtension {
 interface GitAPI {
 	repositories: GitRepository[];
 	getRepository(uri: vscode.Uri): GitRepository | null;
+	onDidOpenRepository: vscode.Event<GitRepository>;
 }
 interface GitRepository {
 	state: { remotes: GitRemote[] };
