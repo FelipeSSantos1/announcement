@@ -128,7 +128,9 @@ function openAnnouncement(a: Announcement): void {
 		updateStatusBar(unread.length);
 	};
 	showOrUpdatePanel(latest, onMarkRead);
-	markRead(a.number).catch(() => {
-		/* ignore */
-	});
+	markRead(a.number)
+		.then(() => showOrUpdatePanel(latest, onMarkRead))
+		.catch(() => {
+			/* ignore */
+		});
 }
